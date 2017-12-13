@@ -1,18 +1,22 @@
 package com.ventoray.bakingrecipes.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
 /**
  * Created by nicks on 12/7/2017.
  */
 
-public class Step implements Serializable {
+public class Step implements Serializable, Parcelable {
 
     private long id;
     private String shortDescription;
     private String description;
     private String videoUrl;
     private String thumbnailUrl;
+
 
     public Step(long id, String shortDescription, String description,
                 String videoUrl, String thumbnailUrl) {
@@ -64,4 +68,38 @@ public class Step implements Serializable {
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeString(this.shortDescription);
+        dest.writeString(this.description);
+        dest.writeString(this.videoUrl);
+        dest.writeString(this.thumbnailUrl);
+    }
+
+    protected Step(Parcel in) {
+        this.id = in.readLong();
+        this.shortDescription = in.readString();
+        this.description = in.readString();
+        this.videoUrl = in.readString();
+        this.thumbnailUrl = in.readString();
+    }
+
+    public static final Parcelable.Creator<Step> CREATOR = new Parcelable.Creator<Step>() {
+        @Override
+        public Step createFromParcel(Parcel source) {
+            return new Step(source);
+        }
+
+        @Override
+        public Step[] newArray(int size) {
+            return new Step[size];
+        }
+    };
 }

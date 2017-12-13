@@ -1,7 +1,6 @@
 package com.ventoray.bakingrecipes.ui;
 
 import android.content.Intent;
-import android.os.Parcel;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -28,7 +27,8 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
     private RecipeAdapter recipeAdapter;
     public static final String KEY_PARCEL_RECIPE = "keyParcelRecipe";
 
-    @BindView(R.id.recycler_recipes) RecyclerView recyclerView;
+
+    @BindView(R.id.recycler_steps) RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

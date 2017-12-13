@@ -17,8 +17,9 @@
         android:layout_height="wrap_content">
 
         <TextView
-            style="@style/ListItemTitle"
             android:id="@+id/tv_step_name"
+            style="@style/ListItemTitle"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
