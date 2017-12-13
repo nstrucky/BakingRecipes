@@ -1,10 +1,13 @@
 package com.ventoray.bakingrecipes.ui;
 
+import android.content.Intent;
+import android.os.Parcel;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.ventoray.bakingrecipes.R;
 import com.ventoray.bakingrecipes.data.Recipe;
@@ -19,10 +22,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnRecipeCardClicked{
 
     private List<Recipe> recipes;
     private RecipeAdapter recipeAdapter;
+    public static final String KEY_PARCEL_RECIPE = "keyParcelRecipe";
+
     @BindView(R.id.recycler_recipes) RecyclerView recyclerView;
 
     @Override
@@ -35,8 +40,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onRecipeCardClicked(View itemView) {
+        Intent intent = new Intent(this, StepsActivity.class);
+        long id = (long) itemView.getTag();
+        for (Recipe recipe : recipes) {
+            long tempId = recipe.getId();
+            if (tempId == id) {
+                intent.putExtra(KEY_PARCEL_RECIPE, recipe);
+                break;
+            }
+        }
+        startActivity(intent);
+    }
+
     private void setUpRecyclerView() {
-        recipeAdapter = new RecipeAdapter(this, recipes);
+        recipeAdapter = new RecipeAdapter(this, recipes, this);
         RecyclerView.LayoutManager layoutManager;
         if (ScreenUtils.isTablet(this)) {
             layoutManager = new GridLayoutManager(this, 3,

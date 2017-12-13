@@ -1,14 +1,16 @@
 package com.ventoray.bakingrecipes.data;
 
+import java.io.Serializable;
+
 /**
  * Created by nicks on 12/7/2017.
  */
 
-public class Ingredient {
+public class Ingredient implements Serializable {
 
-    double quantity;
-    String name;
-    String unit;
+    private double quantity;
+    private String name;
+    private String unit;
 
     public Ingredient(double quantity, String name, String unit) {
         this.quantity = quantity;

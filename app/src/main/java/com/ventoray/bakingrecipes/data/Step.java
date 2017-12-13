@@ -1,10 +1,12 @@
 package com.ventoray.bakingrecipes.data;
 
+import java.io.Serializable;
+
 /**
  * Created by nicks on 12/7/2017.
  */
 
-public class Step {
+public class Step implements Serializable {
 
     private long id;
     private String shortDescription;

@@ -6,4 +6,13 @@
     android:layout_height="match_parent"
     tools:context="com.ventoray.bakingrecipes.ui.StepsActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="36sp"
+        android:gravity="center"
+        android:textColor="@android:color/darker_gray"
+        android:textStyle="bold"
+        android:id="@+id/tv_test_steps"/>
+
 </android.support.constraint.ConstraintLayout>

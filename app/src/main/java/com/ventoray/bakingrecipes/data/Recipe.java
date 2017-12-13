@@ -1,12 +1,16 @@
 package com.ventoray.bakingrecipes.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by nicks on 12/7/2017.
  */
 
-public class Recipe {
+public class Recipe implements Parcelable {
 
     private long id;
     private String name;
@@ -18,6 +22,49 @@ public class Recipe {
 
     public Recipe() {
 
+    }
+
+    public Recipe(Parcel in) {
+
+        id = in.readLong();
+        name = in.readString();
+        ingredients = new ArrayList<>();
+        in.readList(ingredients, null);
+        steps = new ArrayList<>();
+        in.readList(steps, null);
+        servings = in.readInt();
+        image = in.readString();
+        ingredientSummary = in.readString();
+    }
+
+    public static final Parcelable.Creator<Recipe> CREATOR =
+            new Parcelable.Creator<Recipe>() {
+
+                @Override
+                public Recipe createFromParcel(Parcel in) {
+                    return new Recipe(in);
+                }
+
+                @Override
+                public Recipe[] newArray(int size) {
+                    return new Recipe[size];
+                }
+            };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int i) {
+        out.writeLong(id);
+        out.writeString(name);
+        out.writeList(ingredients);
+        out.writeList(steps);
+        out.writeInt(servings);
+        out.writeString(image);
+        out.writeString(ingredientSummary);
     }
 
     public Recipe(long id, String name, List<Ingredient> ingredients, List<Step> steps, int servings, String image) {
