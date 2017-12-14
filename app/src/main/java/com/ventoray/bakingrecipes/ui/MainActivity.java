@@ -21,7 +21,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnRecipeCardClicked{
+public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnRecipeCardClicked {
 
     private List<Recipe> recipes;
     private RecipeAdapter recipeAdapter;

@@ -22,11 +22,14 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
 
     Context context;
     List<Step> steps;
+    OnStepClickedListener onStepClickedListener;
 
-    public StepAdapter(Context context, List<Step> steps) {
+    public StepAdapter(Context context, List<Step> steps,
+                       OnStepClickedListener onStepClickedListener) {
         super();
         this.context = context;
         this.steps = steps;
+        this.onStepClickedListener = onStepClickedListener;
     }
 
     @Override
@@ -41,6 +44,7 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
         if (steps == null) return;
         Step step = steps.get(position);
         holder.stepName.setText(String.format("%d. %s", position+1, step.getShortDescription()));
+        holder.itemView.setTag(step.getId());
     }
 
     @Override
@@ -52,12 +56,23 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
     class StepViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.tv_step_name) TextView stepName;
-//        TextView stepName;
 
         public StepViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-//            stepName = itemView.findViewById(R.id.tv_step_name);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onStepClickedListener.onStepClicked(view);
+                }
+            });
         }
+
+
+    }
+
+    public interface OnStepClickedListener {
+        void onStepClicked(View view);
     }
 }

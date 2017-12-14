@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BakingRecipes.iml" filepath="$PROJECT_DIR$/BakingRecipes.iml" />
+      <module fileurl="file://C:\Users\Nick\AndroidStudioProjects\Android Developer Nanodegree\BakingRecipes\BakingRecipes.iml" filepath="C:\Users\Nick\AndroidStudioProjects\Android Developer Nanodegree\BakingRecipes\BakingRecipes.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\Nick\AndroidStudioProjects\Android Developer Nanodegree\BakingRecipes\app\app.iml" filepath="C:\Users\Nick\AndroidStudioProjects\Android Developer Nanodegree\BakingRecipes\app\app.iml" />
     </modules>
   </component>
 </project>

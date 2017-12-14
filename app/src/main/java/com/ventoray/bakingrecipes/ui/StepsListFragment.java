@@ -23,18 +23,24 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static com.ventoray.bakingrecipes.ui.StepsActivity.KEY_INGREDIENTS;
-import static com.ventoray.bakingrecipes.ui.StepsActivity.KEY_STEPS;
+import static com.ventoray.bakingrecipes.ui.StepsActivity.KEY_STEPS_LIST;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class StepsListFragment extends Fragment {
+public class StepsListFragment extends Fragment implements StepAdapter.OnStepClickedListener {
 
     @BindView(R.id.button_ingredients) Button ingredientsButton;
     @BindView(R.id.recycler_steps) RecyclerView recipesRecyclerView;
     private StepAdapter adapter;
     private List<Step> steps;
     private String ingredientSummary;
+    private OnStepSelectedListener onStepSelectedListener;
+
+
+    public interface OnStepSelectedListener {
+        void onStepSelected(long id);
+    }
 
     public StepsListFragment() {
         // Required empty public constructor
@@ -48,9 +54,11 @@ public class StepsListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_steps_list, container, false);
         ButterKnife.bind(this, view);
 
+        onStepSelectedListener = (OnStepSelectedListener) getActivity();
+
         Bundle args = getArguments();
         if (args != null) {
-            steps = args.getParcelableArrayList(KEY_STEPS);
+            steps = args.getParcelableArrayList(KEY_STEPS_LIST);
             ingredientSummary = args.getString(KEY_INGREDIENTS);
             if (savedInstanceState == null)
             setUpRecipesRecyclerView();
@@ -64,7 +72,7 @@ public class StepsListFragment extends Fragment {
         if (steps != null) {
             LinearLayoutManager llm = new LinearLayoutManager(getContext());
             llm.setOrientation(LinearLayoutManager.VERTICAL);
-            adapter = new StepAdapter(getContext(), steps);
+            adapter = new StepAdapter(getContext(), steps, this);
             recipesRecyclerView.setNestedScrollingEnabled(false);
             recipesRecyclerView.setLayoutManager(llm);
             recipesRecyclerView.setAdapter(adapter);
@@ -72,6 +80,13 @@ public class StepsListFragment extends Fragment {
         } else {
             Log.d("Fragmentation Mon", "Null recipes list");
         }
+
+    }
+
+    @Override
+    public void onStepClicked(View view) {
+        long id = (long) view.getTag();
+        onStepSelectedListener.onStepSelected(id);
 
     }
 
