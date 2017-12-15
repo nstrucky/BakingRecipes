@@ -10,9 +10,25 @@ import com.ventoray.bakingrecipes.R;
 
 public class ScreenUtils {
 
+    /**
+     * Determines whether the device is a tablet by measuring the Portrait mode width where
+     * 600dp is considered a tablet device.
+     * @param context
+     * @return - boolean
+     */
     public static boolean isTablet(Context context) {
-        return context.getResources().getBoolean(R.bool.isTablet);
+        boolean isWide = context.getResources().getBoolean(R.bool.isWide);
+        boolean isTall = context.getResources().getBoolean(R.bool.isTall);
+        return isWide && isTall;
+    }
 
+    /**
+     * Determines whether the device is in Landscape orientation or not
+     * @param context
+     * @return - bool
+     */
+    public static boolean isLandscape(Context context) {
+        return context.getResources().getBoolean(R.bool.isLandscape);
     }
 
 

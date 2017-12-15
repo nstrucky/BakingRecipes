@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <bool name="isWide">true</bool>
+    <bool name="isLandscape">true</bool>
 
 </resources>

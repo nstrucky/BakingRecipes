@@ -32,6 +32,7 @@ public class StepsActivity extends AppCompatActivity
     private List<Step> steps;
     private boolean isTablet;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +47,12 @@ public class StepsActivity extends AppCompatActivity
             steps = recipe.getSteps();
         }
 
+        if (savedInstanceState == null) {
+            initializeListFragment();
+        }
+    }
+
+    private void initializeListFragment() {
         Fragment stepsFragment = new StepsListFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList(KEY_STEPS_LIST,
@@ -57,15 +64,12 @@ public class StepsActivity extends AppCompatActivity
                 .beginTransaction()
                 .add(R.id.container_steps, stepsFragment)
                 .commit();
-
     }
-
-
 
     @Override
     public void onStepSelected(long id) {
         if (isTablet) {
-
+//            replaceStepsFragment(id);
         } else {
             replaceStepsFragment(id);
         }
@@ -82,7 +86,8 @@ public class StepsActivity extends AppCompatActivity
                 if (step.getId() == id) position = i;
             }
             if (position == stepsListSize - 1) return;
-            replaceStepsFragment(position + 1);
+            id = steps.get(position + 1).getId();
+            replaceStepsFragment(id);
 
         } else {
             for (int i = 0; i < stepsListSize; i++) {
@@ -90,7 +95,8 @@ public class StepsActivity extends AppCompatActivity
                 if (step.getId() == id) position = i;
             }
             if (position == 0) return;
-            replaceStepsFragment(position - 1);
+            id = steps.get(position - 1).getId();
+            replaceStepsFragment(id);
         }
     }
 
