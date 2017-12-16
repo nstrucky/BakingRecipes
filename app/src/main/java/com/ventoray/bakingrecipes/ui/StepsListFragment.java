@@ -4,6 +4,7 @@ package com.ventoray.bakingrecipes.ui;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -73,6 +74,9 @@ public class StepsListFragment extends Fragment implements StepAdapter.OnStepCli
             LinearLayoutManager llm = new LinearLayoutManager(getContext());
             llm.setOrientation(LinearLayoutManager.VERTICAL);
             adapter = new StepAdapter(getContext(), steps, this);
+            recipesRecyclerView.addItemDecoration(
+                    new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL)
+            );
             recipesRecyclerView.setNestedScrollingEnabled(false);
             recipesRecyclerView.setLayoutManager(llm);
             recipesRecyclerView.setAdapter(adapter);

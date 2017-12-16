@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 
 import com.ventoray.bakingrecipes.R;
 import com.ventoray.bakingrecipes.data.Recipe;
@@ -14,6 +15,7 @@ import com.ventoray.bakingrecipes.util.ScreenUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.ventoray.bakingrecipes.ui.MainActivity.KEY_PARCEL_RECIPE;
@@ -32,7 +34,6 @@ public class StepsActivity extends AppCompatActivity
     private List<Step> steps;
     private boolean isTablet;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +48,17 @@ public class StepsActivity extends AppCompatActivity
             steps = recipe.getSteps();
         }
 
+        if (isTablet) {
+            findViewById(R.id.container_step).setVisibility(View.VISIBLE);
+            replaceStepsFragment(steps.get(0).getId());
+        }
+
         if (savedInstanceState == null) {
+            initializeListFragment();
+        }
+
+        if (savedInstanceState != null && isTablet) {
+            // TODO: 12/16/2017 restore correct video and instructions in step fragment 
             initializeListFragment();
         }
     }
@@ -68,11 +79,7 @@ public class StepsActivity extends AppCompatActivity
 
     @Override
     public void onStepSelected(long id) {
-        if (isTablet) {
-//            replaceStepsFragment(id);
-        } else {
             replaceStepsFragment(id);
-        }
     }
 
     @Override
@@ -117,9 +124,11 @@ public class StepsActivity extends AppCompatActivity
         Fragment stepFragment = new StepFragment();
         stepFragment.setArguments(args);
 
+        int container = isTablet ? R.id.container_step : R.id.container_steps;
+
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container_steps, stepFragment)
+                .replace(container, stepFragment)
                 .commit();
     }
 

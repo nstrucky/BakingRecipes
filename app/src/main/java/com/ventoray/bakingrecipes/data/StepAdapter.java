@@ -43,7 +43,14 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
     public void onBindViewHolder(StepViewHolder holder, int position) {
         if (steps == null) return;
         Step step = steps.get(position);
-        holder.stepName.setText(String.format("%d. %s", position+1, step.getShortDescription()));
+        String text;
+        if (position == 0) {
+            text = step.getDescription();
+        } else {
+            text = String.format("%d. %s", position, step.getShortDescription());
+        }
+
+        holder.stepName.setText(text);
         holder.itemView.setTag(step.getId());
     }
 

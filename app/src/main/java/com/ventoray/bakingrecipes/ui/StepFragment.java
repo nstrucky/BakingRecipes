@@ -100,6 +100,10 @@ public class StepFragment extends Fragment {
             nextButton.setVisibility(View.GONE);
             previousButton.setVisibility(View.GONE);
             instructionsTextView.setVisibility(View.GONE);
+
+        } else if (isTablet) {
+            nextButton.setVisibility(View.GONE);
+            previousButton.setVisibility(View.GONE);
         }
 
         createExoPlayer();
@@ -137,7 +141,7 @@ public class StepFragment extends Fragment {
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         // Produces DataSource instances through which media data is loaded.
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
-                // TODO: 12/14/2017 figure out if this is right
+                //TODO figure out if this is right
                 Util.getUserAgent(getContext(), getContext().getApplicationInfo().name), bandwidthMeter);
         // Produces Extractor instances for parsing the media data.
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
@@ -158,6 +162,7 @@ public class StepFragment extends Fragment {
     public interface StepsNavigationListener {
         void onNavigationButtonClicked(@NavigationButtons String navigationButton, long id);
     }
+
 
 
 
