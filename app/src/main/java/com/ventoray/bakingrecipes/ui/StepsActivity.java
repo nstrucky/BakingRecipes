@@ -3,6 +3,7 @@ package com.ventoray.bakingrecipes.ui;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -21,7 +22,7 @@ import butterknife.ButterKnife;
 import static com.ventoray.bakingrecipes.ui.MainActivity.KEY_PARCEL_RECIPE;
 import static com.ventoray.bakingrecipes.ui.StepFragment.NEXT_BUTTON;
 
-public class StepsActivity extends AppCompatActivity
+public class StepsActivity extends FragmentActivity
         implements StepsListFragment.OnStepSelectedListener,
         StepFragment.StepsNavigationListener {
 
@@ -50,17 +51,17 @@ public class StepsActivity extends AppCompatActivity
 
         if (isTablet) {
             findViewById(R.id.container_step).setVisibility(View.VISIBLE);
-            replaceStepsFragment(steps.get(0).getId());
+            if (savedInstanceState == null) {
+                replaceStepsFragment(steps.get(0).getId());
+            } else {
+                initializeListFragment();
+            }
         }
 
         if (savedInstanceState == null) {
             initializeListFragment();
         }
 
-        if (savedInstanceState != null && isTablet) {
-            // TODO: 12/16/2017 restore correct video and instructions in step fragment 
-            initializeListFragment();
-        }
     }
 
     private void initializeListFragment() {
