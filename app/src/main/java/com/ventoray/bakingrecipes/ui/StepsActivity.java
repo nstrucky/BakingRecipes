@@ -5,6 +5,8 @@ import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.ventoray.bakingrecipes.R;
@@ -20,7 +22,7 @@ import butterknife.ButterKnife;
 import static com.ventoray.bakingrecipes.ui.MainActivity.KEY_PARCEL_RECIPE;
 import static com.ventoray.bakingrecipes.ui.StepFragment.NEXT_BUTTON;
 
-public class StepsActivity extends FragmentActivity
+public class StepsActivity extends AppCompatActivity
         implements StepsListFragment.OnStepSelectedListener,
         StepFragment.StepsNavigationListener {
 
@@ -40,6 +42,7 @@ public class StepsActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_steps);
         ButterKnife.bind(this);
+        setUpActionBar();
         if (savedInstanceState != null && savedInstanceState.containsKey(KEY_LIST_STATE)) {
             listActivityState = savedInstanceState.getBoolean(KEY_LIST_STATE);
         }
@@ -62,6 +65,15 @@ public class StepsActivity extends FragmentActivity
         } else if (listActivityState){
             if (savedInstanceState == null)
             addStepsListFragment();
+        }
+
+        setTitle(recipe.getName());
+    }
+
+    private void setUpActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 

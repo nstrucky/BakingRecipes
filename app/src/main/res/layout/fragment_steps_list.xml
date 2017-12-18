@@ -12,16 +12,14 @@
 
         <Button
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight=".10"
+            android:layout_height="wrap_content"
             android:id="@+id/button_ingredients"
             android:text="@string/ingredients"/>
 
 
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight=".90"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
