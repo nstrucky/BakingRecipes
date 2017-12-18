@@ -58,8 +58,6 @@ public class WebUtils {
         return httpURLConnection;
     }
 
-
-
     private static File createFile(Context context) throws IOException {
         File file = File.createTempFile(VIDEO_FILE_PREFIX, null, context.getCacheDir());
         file.deleteOnExit();
