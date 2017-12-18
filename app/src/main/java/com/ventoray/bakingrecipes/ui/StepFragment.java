@@ -11,27 +11,21 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.PlaybackParameters;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -46,7 +40,6 @@ import com.ventoray.bakingrecipes.util.ScreenUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.net.URI;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -79,6 +72,7 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
             "com.ventoray.bakingrecipes.ui.StepFragment.nextButton";
     public static final String PLAYER_STATE_POSITION_KEY = "playerStatePositionKey";
     public static final String CURRENT_VIDEO_URI_KEY = "currentVideoUriKey";
+    public static final String CONTINUE_LOADING_KEY = "continueLoadingKey";
 
     private StepsNavigationListener navigationListener;
     private Step step;
@@ -88,18 +82,41 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
     SimpleExoPlayerView simpleExoPlayerView;
     @BindView(R.id.tv_step_instructions)
     TextView instructionsTextView;
+    @BindView(R.id.tv_no_video)
+    TextView noVideoTextView;
     @BindView(R.id.fab_next)
     FloatingActionButton nextButton;
     @BindView(R.id.fab_previous)
     FloatingActionButton previousButton;
-
+    @BindView(R.id.progress_video)
+    FrameLayout progressBar;
 
     private boolean isTablet;
     private boolean isLandscape;
+    private boolean continueLoading = true;
     private SimpleExoPlayer simpleExoPlayer;
 
     public StepFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+
+        if (args != null) {
+            step = args.getParcelable(KEY_STEP_PARCEL);
+
+        }
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(CONTINUE_LOADING_KEY)) {
+            continueLoading = savedInstanceState.getBoolean(CONTINUE_LOADING_KEY);
+        }
+
+        if (continueLoading) {
+            getLoaderManager().initLoader(DOWNLOAD_VIDEO_TASK, null, this);
+        }
     }
 
     @Override
@@ -109,6 +126,9 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
         ButterKnife.bind(this, view);
         isTablet = ScreenUtils.isTablet(getContext());
         isLandscape = ScreenUtils.isLandscape(getContext());
+        if (continueLoading) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
 
         if (!isTablet) navigationListener = (StepsNavigationListener) getActivity();
 
@@ -129,23 +149,6 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
 
         createExoPlayer();
         return view;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Bundle args = getArguments();
-
-        if (args != null) {
-            String text = String.valueOf(args.getLong(KEY_STEP_ID));
-            step = args.getParcelable(KEY_STEP_PARCEL);
-
-        }
-
-        if (savedInstanceState == null) {
-            getLoaderManager().initLoader(DOWNLOAD_VIDEO_TASK, null, this);
-        }
     }
 
     @OnClick({R.id.fab_previous, R.id.fab_next})
@@ -177,7 +180,6 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         // Produces DataSource instances through which media data is loaded.
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getActivity(),
-                //TODO figure out if this is right
                 Util.getUserAgent(getActivity(), "BakingRecipes"), bandwidthMeter);
         // Produces Extractor instances for parsing the media data.
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
@@ -197,20 +199,21 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
         releasePlayer();
     }
 
-
     private void releasePlayer() {
         simpleExoPlayer.stop();
         simpleExoPlayer.release();
         simpleExoPlayer = null;
     }
 
-
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         simpleExoPlayer.stop();
         long position = simpleExoPlayer.getCurrentPosition();
         outState.putLong(PLAYER_STATE_POSITION_KEY, position);
-        outState.putString(CURRENT_VIDEO_URI_KEY, videoStorageUri.toString());
+        outState.putBoolean(CONTINUE_LOADING_KEY, continueLoading);
+        if (videoStorageUri != null) {
+            outState.putString(CURRENT_VIDEO_URI_KEY, videoStorageUri.toString());
+        }
         super.onSaveInstanceState(outState);
     }
 
@@ -218,20 +221,23 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         long position = 0;
-        if (savedInstanceState != null) {
+        if (savedInstanceState == null) return;
 
-            if (savedInstanceState.containsKey(PLAYER_STATE_POSITION_KEY)) {
-                position = savedInstanceState.getLong(PLAYER_STATE_POSITION_KEY);
-            }
+        if (savedInstanceState.containsKey(PLAYER_STATE_POSITION_KEY)) {
+            position = savedInstanceState.getLong(PLAYER_STATE_POSITION_KEY);
+        }
 
-            if (savedInstanceState.containsKey(CURRENT_VIDEO_URI_KEY)) {
-                videoStorageUri = Uri.parse(savedInstanceState.getString(CURRENT_VIDEO_URI_KEY));
-            }
+        if (savedInstanceState.containsKey(CURRENT_VIDEO_URI_KEY)) {
+            videoStorageUri = Uri.parse(savedInstanceState.getString(CURRENT_VIDEO_URI_KEY));
+        }
 
+        if (videoStorageUri != null) {
             simpleExoPlayer.seekTo(position);
             simpleExoPlayer.setPlayWhenReady(true);
+            simpleExoPlayerView.setVisibility(View.VISIBLE);
             preparePlayer(simpleExoPlayer, videoStorageUri);
-
+        } else if (!continueLoading) {
+            noVideoTextView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -250,8 +256,20 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoadFinished(Loader<Uri> loader, Uri data) {
+        progressBar.setVisibility(View.GONE);
+        continueLoading = false;
+
+        if (data == null) {
+            noVideoTextView.setVisibility(View.VISIBLE);
+            return;
+        }
+
         videoStorageUri = data;
+        simpleExoPlayerView.setVisibility(View.VISIBLE);
+
         preparePlayer(simpleExoPlayer, data);
 
     }
+
+
 }

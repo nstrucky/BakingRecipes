@@ -40,19 +40,41 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:id="@+id/exo_player_view"
-            android:layout_weight=".50"/>
+            android:layout_weight=".50"
+            android:visibility="gone"
+            />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/progress_video"
+            android:layout_weight=".50"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                style="@style/Widget.AppCompat.ProgressBar"/>
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".50"
+            android:background="@android:color/black"
+            android:gravity="center"
+            tools:text="error message"
+            android:text="@string/no_video"
+            android:padding="8dp"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:id="@+id/tv_no_video"
+            android:visibility="gone"
+            />
 
 
-        <!--<TextView-->
-            <!--android:id="@+id/tv_test_textview"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="0dp"-->
-            <!--android:layout_weight=".50"-->
-            <!--android:background="@color/colorPrimaryDark"-->
-            <!--android:gravity="center"-->
-            <!--android:textColor="@android:color/white"-->
-            <!--android:textSize="36sp"-->
-            <!--android:textStyle="bold" />-->
 
         <TextView
             android:layout_width="match_parent"
