@@ -45,7 +45,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.ventoray.bakingrecipes.ui.StepsActivity.KEY_STEP_ID;
 import static com.ventoray.bakingrecipes.ui.StepsActivity.KEY_STEP_PARCEL;
 
 /**
@@ -159,7 +158,6 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
 
 
     private void createExoPlayer() {
-        // 1. Create a default TrackSelector
         Handler mainHandler = new Handler();
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         TrackSelection.Factory videoTrackSelectionFactory =
@@ -167,7 +165,6 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
         TrackSelector trackSelector =
                 new DefaultTrackSelector(videoTrackSelectionFactory);
 
-        // 2. Create the player
         simpleExoPlayer =
                 ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector);
 
@@ -176,17 +173,12 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     private void preparePlayer(SimpleExoPlayer simpleExoPlayer, Uri storageUri) {
-        // Measures bandwidth during playback. Can be null if not required.
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        // Produces DataSource instances through which media data is loaded.
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getActivity(),
                 Util.getUserAgent(getActivity(), "BakingRecipes"), bandwidthMeter);
-        // Produces Extractor instances for parsing the media data.
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-        // This is the MediaSource representing the media to be played.
         MediaSource videoSource = new ExtractorMediaSource(storageUri,
                 dataSourceFactory, extractorsFactory, null, null);
-        // Prepare the player with the source.
         simpleExoPlayer.prepare(videoSource);
     }
 

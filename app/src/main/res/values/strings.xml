@@ -5,6 +5,9 @@
     <string name="serves">Serves</string>
     <string name="ingredients">Ingredients</string>
     <string name="no_video">Uh-oh...there is no video to load :(</string>
+    <string name="error">Error</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
 
 
 </resources>

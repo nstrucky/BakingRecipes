@@ -38,6 +38,8 @@ public class Recipe implements Parcelable {
     private String createIngredientSummary(List<Ingredient> ingredients) {
         StringBuilder builder = new StringBuilder();
 
+        builder.append(name).append(": \n");
+
         for (int i = 0; i < ingredients.size(); i++) {
             String name = ingredients.get(i).getName();
             double quantity = ingredients.get(i).getQuantity();

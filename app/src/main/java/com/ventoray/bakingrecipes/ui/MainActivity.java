@@ -6,17 +6,21 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.ArraySet;
 import android.view.View;
+import android.widget.Toast;
 
 import com.ventoray.bakingrecipes.R;
 import com.ventoray.bakingrecipes.data.Recipe;
 import com.ventoray.bakingrecipes.data.RecipeAdapter;
+import com.ventoray.bakingrecipes.util.FileUtils;
 import com.ventoray.bakingrecipes.util.RecipeRetriever;
 import com.ventoray.bakingrecipes.util.ScreenUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,7 +32,8 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
     public static final String KEY_PARCEL_RECIPE = "keyParcelRecipe";
 
 
-    @BindView(R.id.recycler_steps) RecyclerView recyclerView;
+    @BindView(R.id.recycler_steps)
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +87,23 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
                 e.printStackTrace();
             }
         }
+
+        saveIngredientsFile();
+
     }
 
+    /**
+     * this will be used for now...will change with increased functionality
+     */
+    private void saveIngredientsFile() {
+        if (recipes == null || recipes.size() == 0) return;
+
+        String[] ingredients = new String[recipes.size()];
+        for (int i = 0; i < recipes.size(); i++) {
+            ingredients[i] = recipes.get(i).getIngredientSummary();
+        }
+
+        FileUtils.createIngredientsFile(this, ingredients);
+    }
 
 }

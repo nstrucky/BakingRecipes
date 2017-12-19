@@ -1,18 +1,20 @@
 package com.ventoray.bakingrecipes.util;
 
-import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Set;
+
+import static com.ventoray.bakingrecipes.util.FileUtils.createTmpVidFile;
 
 /**
  * Created by Nick on 12/16/2017.
@@ -21,10 +23,10 @@ import java.net.URL;
 public class WebUtils {
 
 
-    private static final String VIDEO_FILE_PREFIX = "temp_video";
+
 
     public static Uri connectAndWriteToFile(Context context, String videoUrl) throws IOException {
-        File outputFile = createFile(context);
+        File outputFile = createTmpVidFile(context);
         HttpURLConnection connection = makeHTTPUrlConnection(videoUrl);
         if (connection == null) return null;
 
@@ -50,7 +52,8 @@ public class WebUtils {
         httpURLConnection.connect();
 
         if (httpURLConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            Log.e("DownLoadTask", "Error connecting with server: " + httpURLConnection.getResponseCode()
+            Log.e("DownLoadTask", "Error connecting with server: " +
+                    httpURLConnection.getResponseCode()
                     + "\n" + httpURLConnection.getResponseMessage());
             return null;
         }
@@ -58,12 +61,6 @@ public class WebUtils {
         return httpURLConnection;
     }
 
-    private static File createFile(Context context) throws IOException {
-        File file = File.createTempFile(VIDEO_FILE_PREFIX, null, context.getCacheDir());
-        file.deleteOnExit();
-
-        return file;
-    }
 
 
 }
