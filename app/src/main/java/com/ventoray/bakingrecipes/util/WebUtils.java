@@ -1,27 +1,29 @@
 package com.ventoray.bakingrecipes.util;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.ventoray.bakingrecipes.data.Recipe;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Set;
+import java.util.List;
 
 import static com.ventoray.bakingrecipes.util.FileUtils.createTmpVidFile;
+import static com.ventoray.bakingrecipes.util.RecipeRetriever.RECIPE_URL;
 
 /**
  * Created by Nick on 12/16/2017.
  */
 
 public class WebUtils {
-
 
 
 
@@ -45,14 +47,14 @@ public class WebUtils {
         return Uri.fromFile(outputFile);
     }
 
-    private static HttpURLConnection makeHTTPUrlConnection(String videoUrl) throws IOException {
-        URL url = new URL(videoUrl);
+    static HttpURLConnection makeHTTPUrlConnection(String stringUrl) throws IOException {
+        URL url = new URL(stringUrl);
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setRequestMethod("GET");
         httpURLConnection.connect();
 
         if (httpURLConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            Log.e("DownLoadTask", "Error connecting with server: " +
+            Log.e("WebUtils", "Error connecting with server: " +
                     httpURLConnection.getResponseCode()
                     + "\n" + httpURLConnection.getResponseMessage());
             return null;
@@ -60,6 +62,26 @@ public class WebUtils {
 
         return httpURLConnection;
     }
+
+
+    static String getJsonResponse(HttpURLConnection connection) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        InputStream inputStream = connection.getInputStream();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            stringBuilder.append(line);
+            Log.d("WebUtils", "\n"+line);
+        }
+
+        return stringBuilder.toString();
+
+    }
+
+
+
+
 
 
 

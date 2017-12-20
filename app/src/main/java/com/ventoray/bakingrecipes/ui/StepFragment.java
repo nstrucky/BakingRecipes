@@ -116,7 +116,6 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
 
         if (args != null) {
             step = args.getParcelable(KEY_STEP_PARCEL);
-
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(CONTINUE_LOADING_KEY)) {

@@ -1,22 +1,36 @@
 package com.ventoray.bakingrecipes.util;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.util.JsonReader;
 
 import com.ventoray.bakingrecipes.data.Ingredient;
 import com.ventoray.bakingrecipes.data.Recipe;
 import com.ventoray.bakingrecipes.data.Step;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static com.ventoray.bakingrecipes.util.WebUtils.getJsonResponse;
+import static com.ventoray.bakingrecipes.util.WebUtils.makeHTTPUrlConnection;
 
 /**
  * Created by nicks on 12/10/2017.
  */
 
 public class RecipeRetriever {
+
+    public static final String RECIPE_URL =
+            "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";
 
     //recipe constants
     public static final String ID = "id";
@@ -175,4 +189,117 @@ public class RecipeRetriever {
         jsonReader.endObject();
         return new Ingredient(quantity, ingredient, measure);
     }
+
+
+/**************************************************************************************************
+ *  The following are the web retrieval tools
+ * ************************************************************************************************
+ */
+
+    public static List<Recipe> getRecipesFromUrl() throws IOException, JSONException {
+        HttpURLConnection connection = makeHTTPUrlConnection(RECIPE_URL);
+        if (connection == null) return null;
+        String jsonString = getJsonResponse(connection);
+        return parseRecipesFromJson(jsonString);
+    }
+
+    private static List<Recipe> parseRecipesFromJson(String json) throws JSONException {
+        JSONArray results = new JSONArray(json);
+        List<Recipe> recipes = new ArrayList<>();
+
+        for (int i = 0; i < results.length(); i++) {
+            JSONObject recipeJson = results.getJSONObject(i);
+
+            long id = recipeJson.getLong(ID);
+            String name = recipeJson.getString(NAME);
+            //get the ingredients
+            JSONArray ingredientsJsonArray = recipeJson.getJSONArray(INGREDIENTS);
+            List<Ingredient> ingredients = Arrays.asList(parseIngredients(ingredientsJsonArray));
+            //get the steps
+            JSONArray stepsJsonArray = recipeJson.getJSONArray(STEPS);
+            List<Step> steps = Arrays.asList(parseSteps(stepsJsonArray));
+
+            int servings = recipeJson.getInt(SERVINGS);
+            String image = recipeJson.getString(IMAGE);
+
+            recipes.add(new Recipe(id, name, ingredients, steps, servings, image));
+        }
+        return recipes;
+    }
+
+
+    private static Step[] parseSteps(JSONArray stepsJsonArray) throws JSONException {
+        Step[] steps = new Step[stepsJsonArray.length()];
+
+        for (int i = 0; i < steps.length; i++) {
+            JSONObject stepJsonObject = stepsJsonArray.getJSONObject(i);
+
+            long id = stepJsonObject.getLong(STEP_ID);
+            String shortDescription = stepJsonObject.getString(SHORT_DESCRIPTION);
+            String description = stepJsonObject.getString(DESCRIPTION);
+            String videoUrl = stepJsonObject.getString(VIDEO_URL);
+            String thumbnailUrl = stepJsonObject.getString(THUMBNAIL_URL);
+
+            steps[i] = new Step(id, shortDescription, description, videoUrl, thumbnailUrl);
+        }
+        return steps;
+    }
+
+
+    private static Ingredient[] parseIngredients(JSONArray ingredientsJsonArray)
+            throws JSONException {
+
+        Ingredient[] ingredients = new Ingredient[ingredientsJsonArray.length()];
+
+        for (int i = 0; i < ingredients.length; i++) {
+            JSONObject ingredientJsonObject = ingredientsJsonArray.getJSONObject(i);
+
+            double quantity = ingredientJsonObject.getDouble(QUANTITY);
+            String ingredient = ingredientJsonObject.getString(INGREDIENT);
+            String measure = ingredientJsonObject.getString(MEASURE);
+
+            ingredients[i] = new Ingredient(quantity, ingredient, measure);
+
+        }
+
+        return ingredients;
+    }
+
+
+
+
+    public static class RecipeAsyncTask extends AsyncTask<Void, Void, List<Recipe>> {
+        private RecipesRetrievedListener listener;
+
+        public RecipeAsyncTask(RecipesRetrievedListener listener) {
+            this.listener = listener;
+
+        }
+
+        @Override
+        protected void onPostExecute(List<Recipe> recipes) {
+            super.onPostExecute(recipes);
+            listener.onRecipesRetrieved(recipes);
+
+        }
+
+        @Override
+        protected List<Recipe> doInBackground(Void... voids) {
+            List<Recipe> recipes = null;
+            try {
+                recipes = RecipeRetriever.getRecipesFromUrl();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return recipes;
+        }
+
+        public interface RecipesRetrievedListener {
+            void onRecipesRetrieved(List<Recipe> recipes);
+        }
+    }
+
 }

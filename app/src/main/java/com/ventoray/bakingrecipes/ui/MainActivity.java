@@ -1,6 +1,9 @@
 package com.ventoray.bakingrecipes.ui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioRecord;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -16,16 +19,19 @@ import com.ventoray.bakingrecipes.data.RecipeAdapter;
 import com.ventoray.bakingrecipes.util.FileUtils;
 import com.ventoray.bakingrecipes.util.RecipeRetriever;
 import com.ventoray.bakingrecipes.util.ScreenUtils;
+import com.ventoray.bakingrecipes.util.WebUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnRecipeCardClicked {
+public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnRecipeCardClicked,
+        RecipeRetriever.RecipeAsyncTask.RecipesRetrievedListener {
 
     private List<Recipe> recipes;
     private RecipeAdapter recipeAdapter;
@@ -38,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         retrieveRecipes();
@@ -60,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
     }
 
     private void setUpRecyclerView() {
+        recipes = new ArrayList<>();
         recipeAdapter = new RecipeAdapter(this, recipes, this);
         RecyclerView.LayoutManager layoutManager;
         if (ScreenUtils.isTablet(this)) {
@@ -74,21 +82,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
     }
 
     private void retrieveRecipes() {
-        InputStream inputStream = getResources().openRawResource(R.raw.recipes);
-
-        try {
-            recipes = RecipeRetriever.readJsonStream(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        saveIngredientsFile();
+        new RecipeRetriever.RecipeAsyncTask(this).execute();
 
     }
 
@@ -104,6 +98,16 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
         }
 
         FileUtils.createIngredientsFile(this, ingredients);
+    }
+
+
+    @Override
+    public void onRecipesRetrieved(List<Recipe> recipes) {
+        if (recipes == null) return;
+        this.recipes.clear();
+        this.recipes.addAll(recipes);
+        recipeAdapter.notifyDataSetChanged();
+        saveIngredientsFile();
     }
 
 }
