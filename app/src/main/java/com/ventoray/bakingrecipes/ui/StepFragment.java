@@ -11,21 +11,30 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -50,7 +59,8 @@ import static com.ventoray.bakingrecipes.ui.StepsActivity.KEY_STEP_PARCEL;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class StepFragment extends Fragment implements LoaderManager.LoaderCallbacks<Uri> {
+public class StepFragment extends Fragment implements LoaderManager.LoaderCallbacks<Uri>,
+        ExoPlayer.EventListener {
 
     @StringDef({
             PREVIOUS_BUTTON,
@@ -116,6 +126,8 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
         if (continueLoading) {
             getLoaderManager().initLoader(DOWNLOAD_VIDEO_TASK, null, this);
         }
+
+        setUpMediaSession();
     }
 
     @Override
@@ -134,7 +146,6 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
         String instructions;
         if ((instructions = step.getDescription()) != null)
             instructionsTextView.setText(instructions);
-
 
         if (isLandscape && !isTablet) {
             nextButton.setVisibility(View.GONE);
@@ -167,6 +178,7 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
 
         simpleExoPlayer =
                 ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector);
+        simpleExoPlayer.addListener(this);
 
         simpleExoPlayerView.setPlayer(simpleExoPlayer);
 
@@ -189,6 +201,7 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
             return;
         }
         releasePlayer();
+        mediaSession.setActive(false);
     }
 
     private void releasePlayer() {
@@ -263,5 +276,107 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
 
     }
 
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        if (playWhenReady && playbackState == ExoPlayer.STATE_READY) {
+            playbackStateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
+                    simpleExoPlayer.getCurrentPosition(), 1f);
+        } else if (playbackState == ExoPlayer.STATE_READY) {
+            playbackStateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
+                    simpleExoPlayer.getCurrentPosition(), 1f);
+            Toast.makeText(getActivity(), R.string.paused, Toast.LENGTH_SHORT).show();
+        }
+        mediaSession.setPlaybackState(playbackStateBuilder.build());
+
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+
+    }
+
+    @Override
+    public void onPositionDiscontinuity(int reason) {
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+    }
+
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+    }
+
+    @Override
+    public void onSeekProcessed() {
+
+    }
+
+
+    /****************************************************************************************
+     *  MediaSession code for future functionality...tabling for now
+     * **************************************************************************************
+     */
+
+    private MediaSessionCompat mediaSession;
+    private PlaybackStateCompat.Builder playbackStateBuilder;
+
+
+    private void setUpMediaSession() {
+        mediaSession = new MediaSessionCompat(this.getContext(), "StepFragment");
+        mediaSession.setFlags(
+                MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                        MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+
+        mediaSession.setMediaButtonReceiver(null);
+        playbackStateBuilder = new PlaybackStateCompat.Builder()
+                .setActions(
+                        PlaybackStateCompat.ACTION_PLAY |
+                                PlaybackStateCompat.ACTION_PAUSE |
+                                PlaybackStateCompat.ACTION_PLAY_PAUSE);
+
+        mediaSession.setPlaybackState(playbackStateBuilder.build());
+        mediaSession.setCallback(new MediaSessionCallback());
+        mediaSession.setActive(true);
+
+    }
+
+
+    private class MediaSessionCallback extends MediaSessionCompat.Callback {
+        @Override
+        public void onPlay() {
+            simpleExoPlayer.setPlayWhenReady(true);
+        }
+
+        @Override
+        public void onPause() {
+            simpleExoPlayer.setPlayWhenReady(false);
+        }
+    }
+
+
 
 }
+
