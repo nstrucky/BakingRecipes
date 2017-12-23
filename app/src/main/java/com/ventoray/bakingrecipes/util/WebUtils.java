@@ -4,8 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import com.ventoray.bakingrecipes.data.Recipe;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,10 +12,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 
 import static com.ventoray.bakingrecipes.util.FileUtils.createTmpVidFile;
-import static com.ventoray.bakingrecipes.util.RecipeRetriever.RECIPE_URL;
 
 /**
  * Created by Nick on 12/16/2017.

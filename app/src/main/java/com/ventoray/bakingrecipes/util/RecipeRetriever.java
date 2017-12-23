@@ -1,12 +1,12 @@
 package com.ventoray.bakingrecipes.util;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.JsonReader;
 
-import com.ventoray.bakingrecipes.data.Ingredient;
-import com.ventoray.bakingrecipes.data.Recipe;
-import com.ventoray.bakingrecipes.data.Step;
+import com.ventoray.bakingrecipes.testing.RecipeIdlingResource;
+import com.ventoray.bakingrecipes.model.Ingredient;
+import com.ventoray.bakingrecipes.model.Recipe;
+import com.ventoray.bakingrecipes.model.Step;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -265,27 +265,33 @@ public class RecipeRetriever {
         return ingredients;
     }
 
-
-
-
     public static class RecipeAsyncTask extends AsyncTask<Void, Void, List<Recipe>> {
         private RecipesRetrievedListener listener;
+        private RecipeIdlingResource idlingResource;
 
-        public RecipeAsyncTask(RecipesRetrievedListener listener) {
+        public RecipeAsyncTask(RecipesRetrievedListener listener,
+                               RecipeIdlingResource idlingResource) {
             this.listener = listener;
-
+            this.idlingResource = idlingResource;
         }
 
         @Override
         protected void onPostExecute(List<Recipe> recipes) {
             super.onPostExecute(recipes);
             listener.onRecipesRetrieved(recipes);
+            if (idlingResource != null) {
+                idlingResource.setIdleState(true);
+            }
 
         }
 
         @Override
         protected List<Recipe> doInBackground(Void... voids) {
             List<Recipe> recipes = null;
+            if (idlingResource != null) {
+                idlingResource.setIdleState(false);
+            }
+
             try {
                 recipes = RecipeRetriever.getRecipesFromUrl();
             } catch (IOException e) {

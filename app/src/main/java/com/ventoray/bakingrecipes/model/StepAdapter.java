@@ -1,4 +1,4 @@
-package com.ventoray.bakingrecipes.data;
+package com.ventoray.bakingrecipes.model;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

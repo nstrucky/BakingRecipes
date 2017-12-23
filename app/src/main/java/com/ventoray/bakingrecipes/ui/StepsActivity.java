@@ -3,20 +3,21 @@ package com.ventoray.bakingrecipes.ui;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 
 import com.ventoray.bakingrecipes.R;
-import com.ventoray.bakingrecipes.data.Recipe;
-import com.ventoray.bakingrecipes.data.Step;
+import com.ventoray.bakingrecipes.model.Recipe;
+import com.ventoray.bakingrecipes.model.Step;
 import com.ventoray.bakingrecipes.util.ScreenUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.ventoray.bakingrecipes.ui.MainActivity.KEY_PARCEL_RECIPE;
@@ -53,6 +54,7 @@ public class StepsActivity extends AppCompatActivity
         if (intent != null) {
             recipe = (Recipe) intent.getParcelableExtra(KEY_PARCEL_RECIPE);
             steps = recipe.getSteps();
+
         }
 
         if (isTablet) {

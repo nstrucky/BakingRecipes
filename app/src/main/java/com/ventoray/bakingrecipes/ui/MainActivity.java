@@ -1,31 +1,26 @@
 package com.ventoray.bakingrecipes.ui;
 
-import android.content.Context;
 import android.content.Intent;
-import android.media.AudioRecord;
-import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.ArraySet;
 import android.view.View;
-import android.widget.Toast;
 
 import com.ventoray.bakingrecipes.R;
-import com.ventoray.bakingrecipes.data.Recipe;
-import com.ventoray.bakingrecipes.data.RecipeAdapter;
+import com.ventoray.bakingrecipes.testing.RecipeIdlingResource;
+import com.ventoray.bakingrecipes.model.Recipe;
+import com.ventoray.bakingrecipes.model.RecipeAdapter;
 import com.ventoray.bakingrecipes.util.FileUtils;
 import com.ventoray.bakingrecipes.util.RecipeRetriever;
 import com.ventoray.bakingrecipes.util.ScreenUtils;
-import com.ventoray.bakingrecipes.util.WebUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,10 +30,12 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
 
     private List<Recipe> recipes;
     private RecipeAdapter recipeAdapter;
+    @Nullable
+    private RecipeIdlingResource idlingResource;
     public static final String KEY_PARCEL_RECIPE = "keyParcelRecipe";
 
 
-    @BindView(R.id.recycler_steps)
+    @BindView(R.id.recycler_recipes)
     RecyclerView recyclerView;
 
     @Override
@@ -46,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        getIdlingResource();
         ButterKnife.bind(this);
         retrieveRecipes();
         setUpRecyclerView();
@@ -82,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
     }
 
     private void retrieveRecipes() {
-        new RecipeRetriever.RecipeAsyncTask(this).execute();
+        new RecipeRetriever.RecipeAsyncTask(this, idlingResource).execute();
 
     }
 
@@ -108,6 +106,16 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
         this.recipes.addAll(recipes);
         recipeAdapter.notifyDataSetChanged();
         saveIngredientsFile();
+    }
+
+
+    @NonNull
+    @VisibleForTesting
+    public RecipeIdlingResource getIdlingResource() {
+        if (idlingResource == null) {
+            idlingResource = new RecipeIdlingResource();
+        }
+        return idlingResource;
     }
 
 }

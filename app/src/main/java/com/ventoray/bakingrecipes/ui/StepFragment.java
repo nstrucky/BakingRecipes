@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.ventoray.bakingrecipes.R;
-import com.ventoray.bakingrecipes.data.Step;
+import com.ventoray.bakingrecipes.model.Step;
 import com.ventoray.bakingrecipes.util.VideoDownloadAsyncTask;
 import com.ventoray.bakingrecipes.util.ScreenUtils;
 

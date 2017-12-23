@@ -15,8 +15,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.ventoray.bakingrecipes.R;
-import com.ventoray.bakingrecipes.data.Step;
-import com.ventoray.bakingrecipes.data.StepAdapter;
+import com.ventoray.bakingrecipes.model.Step;
+import com.ventoray.bakingrecipes.model.StepAdapter;
 
 import java.util.List;
 

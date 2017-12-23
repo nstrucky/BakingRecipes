@@ -1,4 +1,4 @@
-package com.ventoray.bakingrecipes.data;
+package com.ventoray.bakingrecipes.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
