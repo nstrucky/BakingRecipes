@@ -13,7 +13,7 @@ public class RecipeIdlingResource implements IdlingResource {
 
     @Nullable private volatile ResourceCallback callback;
 
-    AtomicBoolean isIdling = new AtomicBoolean(true);
+    private AtomicBoolean isIdling = new AtomicBoolean(true);
 
 
     @Override

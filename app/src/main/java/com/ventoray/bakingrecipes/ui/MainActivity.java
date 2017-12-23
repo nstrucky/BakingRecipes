@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.ventoray.bakingrecipes.R;
 import com.ventoray.bakingrecipes.testing.RecipeIdlingResource;
@@ -33,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
     @Nullable
     private RecipeIdlingResource idlingResource;
     public static final String KEY_PARCEL_RECIPE = "keyParcelRecipe";
+    public static final String KEY_SAVEDINSTANCE_RECIPE_LIST = "savedInstanceRecipeList";
 
 
     @BindView(R.id.recycler_recipes)
@@ -45,9 +48,36 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
         setContentView(R.layout.activity_main);
         getIdlingResource();
         ButterKnife.bind(this);
-        retrieveRecipes();
-        setUpRecyclerView();
 
+        setUpRecyclerView();
+        retrieveData(savedInstanceState);
+    }
+
+    private void retrieveData(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            retrieveRecipesFromWeb();
+        } else if (savedInstanceState.containsKey(KEY_SAVEDINSTANCE_RECIPE_LIST)){
+            ArrayList<Recipe> recipesSaved
+                    = savedInstanceState.getParcelableArrayList(KEY_SAVEDINSTANCE_RECIPE_LIST);
+            if (recipesSaved == null || recipes == null) {
+                Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+                Log.e("MainActivity", "Error retrieving data for recipes.");
+                return;
+            }
+            recipes.clear();
+            recipes.addAll(recipesSaved);
+            recipeAdapter.notifyDataSetChanged();
+            saveIngredientsFile();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (recipes != null) {
+            outState.putParcelableArrayList(KEY_SAVEDINSTANCE_RECIPE_LIST, (ArrayList) recipes);
+        }
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -79,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
         recyclerView.setAdapter(recipeAdapter);
     }
 
-    private void retrieveRecipes() {
+    private void retrieveRecipesFromWeb() {
         new RecipeRetriever.RecipeAsyncTask(this, idlingResource).execute();
 
     }

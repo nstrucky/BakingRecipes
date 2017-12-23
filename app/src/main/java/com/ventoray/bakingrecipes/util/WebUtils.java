@@ -22,7 +22,13 @@ import static com.ventoray.bakingrecipes.util.FileUtils.createTmpVidFile;
 public class WebUtils {
 
 
-
+    /**
+     * Connects to url and immediately writes response to a temporary file
+     * @param context
+     * @param videoUrl
+     * @return
+     * @throws IOException
+     */
     public static Uri connectAndWriteToFile(Context context, String videoUrl) throws IOException {
         File outputFile = createTmpVidFile(context);
         HttpURLConnection connection = makeHTTPUrlConnection(videoUrl);

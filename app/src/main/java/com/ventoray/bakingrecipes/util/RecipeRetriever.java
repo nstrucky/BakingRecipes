@@ -282,7 +282,6 @@ public class RecipeRetriever {
             if (idlingResource != null) {
                 idlingResource.setIdleState(true);
             }
-
         }
 
         @Override

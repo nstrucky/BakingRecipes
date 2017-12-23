@@ -1,17 +1,14 @@
 package com.ventoray.bakingrecipes.util;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Set;
 
 /**
  * Created by Nick on 12/18/2017.
@@ -29,6 +26,12 @@ public class FileUtils {
         return file;
     }
 
+    /**
+     * Creates a file with the ingredient summaries for each recipe so that the StackWidget
+     *  can display the ingredients
+     * @param context
+     * @param ingredients
+     */
     public static void createIngredientsFile(Context context, String[] ingredients) {
 
         FileOutputStream outputStream;
@@ -44,6 +47,11 @@ public class FileUtils {
         }
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     public static String[] getIngredientsArray(Context context) {
         String[] ingredients = null;
         try {
