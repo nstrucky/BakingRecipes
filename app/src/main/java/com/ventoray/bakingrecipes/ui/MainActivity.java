@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.ventoray.bakingrecipes.R;
@@ -38,8 +39,8 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
     public static final String KEY_SAVEDINSTANCE_RECIPE_LIST = "savedInstanceRecipeList";
 
 
-    @BindView(R.id.recycler_recipes)
-    RecyclerView recyclerView;
+    @BindView(R.id.recycler_recipes) RecyclerView recyclerView;
+    @BindView(R.id.progress_recipes) ProgressBar progressRecipes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +55,10 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
     }
 
     private void retrieveData(Bundle savedInstanceState) {
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null ||
+                !savedInstanceState.containsKey(KEY_SAVEDINSTANCE_RECIPE_LIST)) {
             retrieveRecipesFromWeb();
-        } else if (savedInstanceState.containsKey(KEY_SAVEDINSTANCE_RECIPE_LIST)){
+        } else {
             ArrayList<Recipe> recipesSaved
                     = savedInstanceState.getParcelableArrayList(KEY_SAVEDINSTANCE_RECIPE_LIST);
             if (recipesSaved == null || recipes == null) {
@@ -67,13 +69,14 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
             recipes.clear();
             recipes.addAll(recipesSaved);
             recipeAdapter.notifyDataSetChanged();
+            progressRecipes.setVisibility(View.GONE);
             saveIngredientsFile();
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        if (recipes != null) {
+        if (recipes != null && recipes.size() > 0) {
             outState.putParcelableArrayList(KEY_SAVEDINSTANCE_RECIPE_LIST, (ArrayList) recipes);
         }
 
@@ -135,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
         this.recipes.clear();
         this.recipes.addAll(recipes);
         recipeAdapter.notifyDataSetChanged();
+        progressRecipes.setVisibility(View.GONE);
         saveIngredientsFile();
     }
 
