@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
         setContentView(R.layout.activity_main);
         getIdlingResource();
         ButterKnife.bind(this);
-
         setUpRecyclerView();
         retrieveData(savedInstanceState);
     }

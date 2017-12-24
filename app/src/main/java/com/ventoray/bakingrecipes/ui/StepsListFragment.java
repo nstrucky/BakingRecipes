@@ -1,9 +1,14 @@
 package com.ventoray.bakingrecipes.ui;
 
 
+import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.ventoray.bakingrecipes.R;
 import com.ventoray.bakingrecipes.model.Step;
@@ -26,6 +32,7 @@ import butterknife.OnClick;
 
 import static com.ventoray.bakingrecipes.ui.StepsActivity.KEY_INGREDIENTS;
 import static com.ventoray.bakingrecipes.ui.StepsActivity.KEY_STEPS_LIST;
+import static com.ventoray.bakingrecipes.ui.StepsListFragment.IngredientsDialog.INGREDIENTS_MESSAGE_KEY;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -103,10 +110,58 @@ public class StepsListFragment extends Fragment implements StepAdapter.OnStepCli
     @OnClick(R.id.button_ingredients)
     public void showIngredients() {
         if (ingredientSummary == null) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(R.string.ingredients);
-        builder.setMessage(ingredientSummary);
-        builder.create().show();
+        IngredientsDialog ingredientsDialog = new IngredientsDialog();
+        Bundle args = new Bundle();
+        args.putString(INGREDIENTS_MESSAGE_KEY, ingredientSummary);
+
+        ingredientsDialog.setArguments(args);
+
+        FragmentManager manager = getFragmentManager();
+        if (manager == null) {
+            makeErrorToast();
+            return;
+        }
+
+        ingredientsDialog.show(manager, "StepsListFragment");
+
+    }
+
+
+    public static class IngredientsDialog extends DialogFragment {
+
+        public static final String INGREDIENTS_MESSAGE_KEY = "ingredientsMessageKey";
+        private String message;
+
+        public IngredientsDialog() {
+            super();
+        }
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            Bundle args = getArguments();
+
+            if (args != null && args.containsKey(INGREDIENTS_MESSAGE_KEY)) {
+                message = args.getString(INGREDIENTS_MESSAGE_KEY);
+            } else {
+                message = getString(R.string.error);
+            }
+            Context context = getContext();
+            if (context == null) {
+                Log.e("IngredientsDialog", "Error establishing context");
+
+            }
+
+            return new AlertDialog.Builder(context)
+                    .setMessage(message)
+                    .setTitle(getString(R.string.ingredients))
+                    .setPositiveButton(R.string.ok, null)
+                    .create();
+        }
+    }
+
+    private void makeErrorToast() {
+        Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
     }
 
 }

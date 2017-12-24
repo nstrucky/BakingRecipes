@@ -2,11 +2,14 @@ package com.ventoray.bakingrecipes.model;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.ventoray.bakingrecipes.R;
 
 import java.util.List;
@@ -48,6 +51,14 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
             text = step.getDescription();
         } else {
             text = String.format("%d. %s", position, step.getShortDescription());
+            String url = step.getThumbnailUrl();
+            if (url != null && !url.isEmpty()) {
+                Log.d("StepAdapter", "Url: " + url);
+                Picasso.with(context)
+                        .load(url)
+                        .into(holder.stepImage);
+            }
+
         }
 
         holder.stepName.setText(text);
@@ -63,6 +74,7 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
     class StepViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.tv_step_name) TextView stepName;
+        @BindView(R.id.iv_step_image) ImageView stepImage;
 
         public StepViewHolder(View itemView) {
             super(itemView);

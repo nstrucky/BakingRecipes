@@ -82,6 +82,7 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
     public static final String PLAYER_STATE_POSITION_KEY = "playerStatePositionKey";
     public static final String CURRENT_VIDEO_URI_KEY = "currentVideoUriKey";
     public static final String CONTINUE_LOADING_KEY = "continueLoadingKey";
+    public static final String SHOULD_PLAY_KEY = "shouldPlayKey";
 
     private StepsNavigationListener navigationListener;
     private Step step;
@@ -103,6 +104,7 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
     private boolean isTablet;
     private boolean isLandscape;
     private boolean continueLoading = true;
+    private boolean shouldPlay = true;
     private SimpleExoPlayer simpleExoPlayer;
 
     public StepFragment() {
@@ -196,11 +198,8 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (getActivity().isChangingConfigurations()) {
-            return;
-        }
-        releasePlayer();
-        mediaSession.setActive(false);
+
+
     }
 
     private void releasePlayer() {
@@ -215,6 +214,7 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
         long position = simpleExoPlayer.getCurrentPosition();
         outState.putLong(PLAYER_STATE_POSITION_KEY, position);
         outState.putBoolean(CONTINUE_LOADING_KEY, continueLoading);
+        outState.putBoolean(SHOULD_PLAY_KEY, shouldPlay);
         if (videoStorageUri != null) {
             outState.putString(CURRENT_VIDEO_URI_KEY, videoStorageUri.toString());
         }
@@ -231,13 +231,22 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
             position = savedInstanceState.getLong(PLAYER_STATE_POSITION_KEY);
         }
 
+        if (savedInstanceState.containsKey(SHOULD_PLAY_KEY)) {
+            shouldPlay = savedInstanceState.getBoolean(SHOULD_PLAY_KEY);
+        }
+
         if (savedInstanceState.containsKey(CURRENT_VIDEO_URI_KEY)) {
             videoStorageUri = Uri.parse(savedInstanceState.getString(CURRENT_VIDEO_URI_KEY));
         }
 
         if (videoStorageUri != null) {
             simpleExoPlayer.seekTo(position);
-            simpleExoPlayer.setPlayWhenReady(true);
+            if (shouldPlay) {
+                simpleExoPlayer.setPlayWhenReady(true);
+            } else {
+                simpleExoPlayer.setPlayWhenReady(false);
+            }
+
             simpleExoPlayerView.setVisibility(View.VISIBLE);
             preparePlayer(simpleExoPlayer, videoStorageUri);
         } else if (!continueLoading) {
@@ -295,9 +304,11 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
         if (playWhenReady && playbackState == ExoPlayer.STATE_READY) {
             playbackStateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
                     simpleExoPlayer.getCurrentPosition(), 1f);
+            shouldPlay = true;
         } else if (playbackState == ExoPlayer.STATE_READY) {
             playbackStateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
                     simpleExoPlayer.getCurrentPosition(), 1f);
+            shouldPlay = false;
             Toast.makeText(getActivity(), R.string.paused, Toast.LENGTH_SHORT).show();
         }
         mediaSession.setPlaybackState(playbackStateBuilder.build());
@@ -333,6 +344,15 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
 
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (getActivity().isChangingConfigurations()) {
+            return;
+        }
+        releasePlayer();
+        mediaSession.setActive(false);
+    }
 
     /****************************************************************************************
      *  MediaSession code for future functionality...tabling for now
@@ -372,6 +392,7 @@ public class StepFragment extends Fragment implements LoaderManager.LoaderCallba
         @Override
         public void onPause() {
             simpleExoPlayer.setPlayWhenReady(false);
+
         }
     }
 

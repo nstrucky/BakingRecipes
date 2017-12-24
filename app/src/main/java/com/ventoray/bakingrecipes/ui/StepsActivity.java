@@ -115,8 +115,6 @@ public class StepsActivity extends AppCompatActivity
         }
     }
 
-
-
     private void addStepsListFragment() {
         Fragment stepsFragment = new StepsListFragment();
         Bundle args = new Bundle();
